@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.widget.RemoteViews
 
 class FlipperWidgetProvider : AppWidgetProvider() {
@@ -54,6 +55,16 @@ class FlipperWidgetProvider : AppWidgetProvider() {
         }
     }
 
+    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        super.onDeleted(context, appWidgetIds)
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().apply {
+            for (appWidgetId in appWidgetIds) {
+                remove(STATE_PREFIX + appWidgetId)
+            }
+        }.apply()
+    }
+
     private fun updateAppWidget(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -67,6 +78,7 @@ class FlipperWidgetProvider : AppWidgetProvider() {
         val intent = Intent(context, FlipperWidgetProvider::class.java).apply {
             action = ACTION_FLIP
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            data = Uri.parse("imageflipwidget://flip/$appWidgetId")
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
