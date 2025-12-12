@@ -27,7 +27,9 @@ jobs:
         shell: bash
         run: |
           sdkmanager --version
-          yes | sdkmanager --licenses
+          # `bash` in GitHub Actions runs with `-o pipefail`; `yes` will often get SIGPIPE once
+          # `sdkmanager` stops reading, which would fail the step unless we ignore it.
+          yes | sdkmanager --licenses >/dev/null || true
           sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
       - name: Make gradlew executable
