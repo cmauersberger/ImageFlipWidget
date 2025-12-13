@@ -1,18 +1,21 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
-    namespace = "org.example.imageflipwidget"
-    compileSdk = 34
+    namespace = "com.example.widgetflip"
+    compileSdk {
+        version = release(36)
+    }
 
     defaultConfig {
-        applicationId = "org.example.imageflipwidget"
-        minSdk = 24
-        targetSdk = 34
+        applicationId = "com.example.widgetflip"
+        minSdk = 31
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -24,26 +27,24 @@ android {
                 "proguard-rules.pro"
             )
         }
-        debug {
-            isMinifyEnabled = false
-        }
     }
-
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "11"
+    }
+    buildFeatures {
+        viewBinding = true
     }
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")
-
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

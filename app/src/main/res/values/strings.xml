@@ -1,12 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Image Flip Widget</string>
-    <string name="widget_name">Image Flip</string>
-    <string name="widget_description">Tap to flip the image.</string>
-    <string name="pin_widget">Pin widget to home screen</string>
-    <string name="pin_supported">Use the button below to pin the widget (useful if the widget picker doesn’t show it).</string>
-    <string name="pin_not_supported">Pinning widgets isn’t supported by this launcher/device. Add it from the home screen widget picker.</string>
-    <string name="pin_requested">Pin request sent. If supported, a system prompt should appear.</string>
-    <string name="pin_request_rejected">Pin request rejected by launcher/device.</string>
-    <string name="pin_callback_received">Widget pinned callback received.</string>
+    <string name="app_name">WidgetFlip</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This is an app widget description</string>
 </resources>
