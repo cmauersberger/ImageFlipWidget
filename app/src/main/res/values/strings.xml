@@ -3,4 +3,10 @@
     <string name="app_name">Image Flip Widget</string>
     <string name="widget_name">Image Flip</string>
     <string name="widget_description">Tap to flip the image.</string>
+    <string name="pin_widget">Pin widget to home screen</string>
+    <string name="pin_supported">Use the button below to pin the widget (useful if the widget picker doesn’t show it).</string>
+    <string name="pin_not_supported">Pinning widgets isn’t supported by this launcher/device. Add it from the home screen widget picker.</string>
+    <string name="pin_requested">Pin request sent. If supported, a system prompt should appear.</string>
+    <string name="pin_request_rejected">Pin request rejected by launcher/device.</string>
+    <string name="pin_callback_received">Widget pinned callback received.</string>
 </resources>

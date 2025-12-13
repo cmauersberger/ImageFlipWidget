@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AppWidgetProviderInfo xmlns:android="http://schemas.android.com/apk/res/android"
+    android:label="@string/widget_name"
+    android:icon="@mipmap/ic_launcher"
     android:minWidth="110dp"
     android:minHeight="110dp"
     android:updatePeriodMillis="0"
