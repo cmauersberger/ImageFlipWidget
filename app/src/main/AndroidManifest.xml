@@ -21,7 +21,8 @@
 
         <receiver
             android:name=".FlipperWidgetProvider"
-            android:exported="false">
+            android:exported="true"
+            android:permission="android.permission.BIND_APPWIDGET">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="org.example.imageflipwidget.FLIP_IMAGE" />
