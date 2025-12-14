@@ -3,6 +3,7 @@ package com.example.imageflipwidget
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.appwidget.AppWidgetManager
 import androidx.appcompat.app.AppCompatActivity
 
 class ImagePickerActivity : AppCompatActivity() {
@@ -36,6 +37,8 @@ class ImagePickerActivity : AppCompatActivity() {
             return
         }
 
+        val appWidgetId = intent?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
+
         val pickedUris = mutableListOf<Uri>()
         val clipData = data.clipData
         if (clipData != null) {
@@ -64,9 +67,17 @@ class ImagePickerActivity : AppCompatActivity() {
         }
 
         val prefs = getSharedPreferences(packageName, MODE_PRIVATE)
-        prefs.edit().putString(ImageFlipWidget.PREF_FIRST_IMAGE_URI, pickedUris.first().toString()).apply()
+        ImageFlipWidget.saveSelectedImages(
+            prefs = prefs,
+            appWidgetId = appWidgetId,
+            imageUris = pickedUris.map { it.toString() }
+        )
 
-        ImageFlipWidget.updateAllWidgets(this)
+        if (appWidgetId != -1) {
+            ImageFlipWidget.updateSingleWidget(this, appWidgetId)
+        } else {
+            ImageFlipWidget.updateAllWidgets(this)
+        }
         finish()
     }
 }

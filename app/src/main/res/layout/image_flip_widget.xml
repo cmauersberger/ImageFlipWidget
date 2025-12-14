@@ -8,6 +8,7 @@
         android:id="@+id/background_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clickable="true"
         android:contentDescription="@null"
         android:scaleType="centerCrop"
         android:visibility="gone" />
@@ -33,7 +34,7 @@
         android:layout_below="@id/appwidget_text"
         android:layout_marginTop="2dp"
         android:background="@android:color/transparent"
-        android:text="v2.6"
+        android:text="v2.7"
         android:textSize="12sp"
         android:textStyle="bold|italic" />
     <Button

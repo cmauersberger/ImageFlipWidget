@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.RemoteViews
 import kotlin.math.roundToInt
+import org.json.JSONArray
 
 /**
  * Implementation of App Widget functionality.
@@ -19,14 +20,26 @@ import kotlin.math.roundToInt
 class ImageFlipWidget : AppWidgetProvider() {
     companion object {
         const val ACTION_INCREASE = "com.example.imageflipwidget.action.INCREASE"
+        const val ACTION_NEXT_IMAGE = "com.example.imageflipwidget.action.NEXT_IMAGE"
 
         private const val PREF_WIDGET_TEXT = "widgetText"
-        const val PREF_FIRST_IMAGE_URI = "widgetFirstImageUri"
+        private const val PREF_FIRST_IMAGE_URI_LEGACY = "widgetFirstImageUri"
+
+        private const val PREF_IMAGE_URIS_PREFIX = "widgetImageUris_"
+        private const val PREF_IMAGE_INDEX_PREFIX = "widgetImageIndex_"
+
+        private fun imageUrisKey(appWidgetId: Int) = "$PREF_IMAGE_URIS_PREFIX$appWidgetId"
+        private fun imageIndexKey(appWidgetId: Int) = "$PREF_IMAGE_INDEX_PREFIX$appWidgetId"
 
         fun updateAllWidgets(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
             val ids = manager.getAppWidgetIds(ComponentName(context, ImageFlipWidget::class.java))
             ids.forEach { id -> updateAppWidget(context, manager, id) }
+        }
+
+        fun updateSingleWidget(context: Context, appWidgetId: Int) {
+            val manager = AppWidgetManager.getInstance(context)
+            updateAppWidget(context, manager, appWidgetId)
         }
 
         private fun increasePendingIntent(context: Context): PendingIntent {
@@ -39,16 +52,91 @@ class ImageFlipWidget : AppWidgetProvider() {
             )
         }
 
-        private fun imagePickerPendingIntent(context: Context): PendingIntent {
+        private fun imagePickerPendingIntent(context: Context, appWidgetId: Int): PendingIntent {
             val intent = Intent(context, ImagePickerActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             }
             return PendingIntent.getActivity(
                 context,
-                1,
+                100_000 + appWidgetId,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
+        }
+
+        private fun nextImagePendingIntent(context: Context, appWidgetId: Int): PendingIntent {
+            val intent = Intent(context, ImageFlipWidget::class.java).apply {
+                action = ACTION_NEXT_IMAGE
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            }
+            return PendingIntent.getBroadcast(
+                context,
+                200_000 + appWidgetId,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+
+        fun saveSelectedImages(
+            prefs: android.content.SharedPreferences,
+            appWidgetId: Int,
+            imageUris: List<String>
+        ) {
+            val normalizedUris = imageUris.filter { it.isNotBlank() }.distinct()
+            if (normalizedUris.isEmpty()) return
+
+            val editor = prefs.edit()
+            if (appWidgetId != -1) {
+                editor.putString(imageUrisKey(appWidgetId), JSONArray(normalizedUris).toString())
+                editor.putInt(imageIndexKey(appWidgetId), 0)
+            } else {
+                editor.putString(PREF_FIRST_IMAGE_URI_LEGACY, normalizedUris.first())
+            }
+            editor.apply()
+        }
+
+        private fun loadImageUris(
+            prefs: android.content.SharedPreferences,
+            appWidgetId: Int
+        ): List<String> {
+            if (appWidgetId != -1) {
+                val stored = prefs.getString(imageUrisKey(appWidgetId), null)
+                if (!stored.isNullOrBlank()) {
+                    return runCatching {
+                        val array = JSONArray(stored)
+                        List(array.length()) { idx -> array.getString(idx) }.filter { it.isNotBlank() }
+                    }.getOrDefault(emptyList())
+                }
+            }
+            val legacy = prefs.getString(PREF_FIRST_IMAGE_URI_LEGACY, null)
+            return if (legacy.isNullOrBlank()) emptyList() else listOf(legacy)
+        }
+
+        private fun loadImageIndex(prefs: android.content.SharedPreferences, appWidgetId: Int): Int {
+            if (appWidgetId == -1) return 0
+            return prefs.getInt(imageIndexKey(appWidgetId), 0)
+        }
+
+        private fun saveImageIndex(
+            prefs: android.content.SharedPreferences,
+            appWidgetId: Int,
+            index: Int
+        ) {
+            if (appWidgetId == -1) return
+            prefs.edit().putInt(imageIndexKey(appWidgetId), index).apply()
+        }
+
+        private fun advanceToNextImage(context: Context, appWidgetId: Int) {
+            if (appWidgetId == -1) return
+            val prefs = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
+            val uris = loadImageUris(prefs, appWidgetId)
+            if (uris.size <= 1) return
+
+            val current = loadImageIndex(prefs, appWidgetId).coerceAtLeast(0)
+            val next = (current + 1) % uris.size
+            saveImageIndex(prefs, appWidgetId, next)
+            updateSingleWidget(context, appWidgetId)
         }
 
         fun updateAppWidget(
@@ -59,24 +147,31 @@ class ImageFlipWidget : AppWidgetProvider() {
             val prefs = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
 
             val widgetText = prefs.getString(PREF_WIDGET_TEXT, "0")
-            val imageUriString = prefs.getString(PREF_FIRST_IMAGE_URI, null)
+
+            val imageUris = loadImageUris(prefs, appWidgetId)
+            val imageIndex = loadImageIndex(prefs, appWidgetId)
+            val selectedImageUri = imageUris.getOrNull(imageIndex.coerceAtLeast(0))
 
             val views = RemoteViews(context.packageName, R.layout.image_flip_widget)
             views.setTextViewText(R.id.appwidget_text, widgetText)
 
-            if (!imageUriString.isNullOrBlank()) {
+            if (!selectedImageUri.isNullOrBlank()) {
                 val bitmap = runCatching {
                     loadScaledBitmapForWidget(
                         context = context,
                         appWidgetManager = appWidgetManager,
                         appWidgetId = appWidgetId,
-                        uri = Uri.parse(imageUriString)
+                        uri = Uri.parse(selectedImageUri)
                     )
                 }.getOrNull()
 
                 if (bitmap != null) {
                     views.setViewVisibility(R.id.background_image, android.view.View.VISIBLE)
                     views.setImageViewBitmap(R.id.background_image, bitmap)
+                    views.setOnClickPendingIntent(
+                        R.id.background_image,
+                        nextImagePendingIntent(context, appWidgetId)
+                    )
                 } else {
                     views.setViewVisibility(R.id.background_image, android.view.View.GONE)
                 }
@@ -85,7 +180,7 @@ class ImageFlipWidget : AppWidgetProvider() {
             }
 
             views.setOnClickPendingIntent(R.id.button, increasePendingIntent(context))
-            views.setOnClickPendingIntent(R.id.settings_button, imagePickerPendingIntent(context))
+            views.setOnClickPendingIntent(R.id.settings_button, imagePickerPendingIntent(context, appWidgetId))
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
@@ -171,6 +266,17 @@ class ImageFlipWidget : AppWidgetProvider() {
             ).apply()
 
             updateAllWidgets(context)
+            return
+        }
+
+        if (context != null && action == ACTION_NEXT_IMAGE) {
+            val appWidgetId =
+                intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+            if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                advanceToNextImage(context, appWidgetId)
+            } else {
+                updateAllWidgets(context)
+            }
         }
     }
 
