@@ -6,6 +6,8 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.widget.RemoteViews
 
 /**
@@ -77,6 +79,18 @@ class ImageFlipWidget : AppWidgetProvider() {
         )
     }
 
+    private fun settingsPendingIntent(context: Context): PendingIntent {
+        val intent = Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.fromParts("package", context.packageName, null)
+        )
+        return PendingIntent.getActivity(
+            context,
+            1,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
 
     private fun updateAppWidget(
         context: Context,
@@ -94,6 +108,7 @@ class ImageFlipWidget : AppWidgetProvider() {
 
         // launch a pending intent to increase the value saved in shared preferences
         views.setOnClickPendingIntent(R.id.button, pendingIntent(context, ACTION_INCREASE))
+        views.setOnClickPendingIntent(R.id.settings_button, settingsPendingIntent(context))
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views)

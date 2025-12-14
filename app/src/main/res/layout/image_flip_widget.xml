@@ -23,7 +23,7 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@id/appwidget_text"
         android:layout_marginTop="2dp"
-        android:text="v2.3"
+        android:text="v2.4"
         android:textSize="24sp"
         android:textStyle="bold|italic" />
     <Button
@@ -33,4 +33,17 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:text="@string/click_me"/>
+
+    <ImageButton
+        android:id="@+id/settings_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="0dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/settings"
+        android:padding="2dp"
+        android:src="@drawable/ic_settings_24" />
 </RelativeLayout>
