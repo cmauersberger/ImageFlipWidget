@@ -42,6 +42,7 @@ class ImagePickerActivity : AppCompatActivity() {
         if (requestCode != REQUEST_PICK_IMAGES) return
 
         if (resultCode != RESULT_OK || data == null) {
+            setResult(RESULT_CANCELED)
             finish()
             return
         }
@@ -59,6 +60,7 @@ class ImagePickerActivity : AppCompatActivity() {
         }
 
         if (pickedUris.isEmpty()) {
+            setResult(RESULT_CANCELED)
             finish()
             return
         }
@@ -87,6 +89,7 @@ class ImagePickerActivity : AppCompatActivity() {
         } else {
             ImageFlipWidget.updateAllWidgets(this)
         }
+        setResult(RESULT_OK)
         finish()
     }
 }

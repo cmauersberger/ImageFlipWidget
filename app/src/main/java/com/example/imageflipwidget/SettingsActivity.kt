@@ -1,13 +1,21 @@
 package com.example.imageflipwidget
 
 import android.appwidget.AppWidgetManager
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 
 class SettingsActivity : AppCompatActivity() {
     private var appWidgetId: Int = AppWidgetManager.INVALID_APPWIDGET_ID
+    private val pickImagesLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                finish()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,7 +27,12 @@ class SettingsActivity : AppCompatActivity() {
         ) ?: AppWidgetManager.INVALID_APPWIDGET_ID
 
         findViewById<Button>(R.id.select_images_button).setOnClickListener {
-            ImagePickerActivity.start(this, appWidgetId)
+            pickImagesLauncher.launch(
+                Intent(this, ImagePickerActivity::class.java).putExtra(
+                    AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    appWidgetId
+                )
+            )
         }
     }
 
@@ -30,4 +43,3 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.selected_images_label).text = label
     }
 }
-
