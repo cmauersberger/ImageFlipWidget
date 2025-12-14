@@ -1,0 +1,7 @@
+<resources>
+    <plurals name="selected_images">
+        <item quantity="one">Selected %d image</item>
+        <item quantity="other">Selected %d images</item>
+    </plurals>
+</resources>
+

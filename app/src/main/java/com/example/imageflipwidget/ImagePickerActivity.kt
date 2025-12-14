@@ -4,11 +4,20 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.appwidget.AppWidgetManager
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 
 class ImagePickerActivity : AppCompatActivity() {
-    private companion object {
-        const val REQUEST_PICK_IMAGES = 1001
+    companion object {
+        private const val REQUEST_PICK_IMAGES = 1001
+
+        fun start(context: Context, appWidgetId: Int) {
+            val intent = Intent(context, ImagePickerActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            }
+            context.startActivity(intent)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

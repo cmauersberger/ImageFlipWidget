@@ -42,7 +42,7 @@ class ImageFlipWidget : AppWidgetProvider() {
         }
 
         private fun imagePickerPendingIntent(context: Context, appWidgetId: Int): PendingIntent {
-            val intent = Intent(context, ImagePickerActivity::class.java).apply {
+            val intent = Intent(context, SettingsActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             }
@@ -100,6 +100,11 @@ class ImageFlipWidget : AppWidgetProvider() {
             }
             val legacy = prefs.getString(PREF_FIRST_IMAGE_URI_LEGACY, null)
             return if (legacy.isNullOrBlank()) emptyList() else listOf(legacy)
+        }
+
+        fun getSelectedImageCount(context: Context, appWidgetId: Int): Int {
+            val prefs = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
+            return loadImageUris(prefs, appWidgetId).size
         }
 
         private fun loadImageIndex(prefs: android.content.SharedPreferences, appWidgetId: Int): Int {

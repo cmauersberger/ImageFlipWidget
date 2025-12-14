@@ -12,6 +12,11 @@
             android:exported="false"
             android:theme="@style/Theme.ImageFlipWidget" />
 
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ImageFlipWidget.SettingsDialog" />
+
         <receiver
             android:name=".ImageFlipWidget"
             android:exported="false">
