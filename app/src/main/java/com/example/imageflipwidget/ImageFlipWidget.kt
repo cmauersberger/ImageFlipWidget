@@ -10,8 +10,13 @@ import android.widget.RemoteViews
 
 /**
  * Implementation of App Widget functionality.
+ * PROPOSED NAME BY CODEX: ImageFlipWidget OLD NAME: WidgetFlipWidget
  */
-class WidgetFlipWidget : AppWidgetProvider() {
+class ImageFlipWidget : AppWidgetProvider() {
+    private companion object {
+        const val ACTION_INCREASE = "com.example.imageflipwidget.action.INCREASE"
+    }
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -27,15 +32,17 @@ class WidgetFlipWidget : AppWidgetProvider() {
         super.onReceive(context, intent)
 
         // this is where we receive an intent broadcast
-        val action = intent!!.action ?: ""
+        val action = intent?.action ?: return
 
-        if (context != null && action == "increase") {
+        if (context != null && action == ACTION_INCREASE) {
             // update preferences values
             val prefs = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
             prefs.edit().putString(
                 "widgetText",
                 ((prefs.getString("widgetText", "0") ?: "0").toInt() + 1).toString()
             ).apply()
+
+            updateWidgets(context)
         }
     }
 
@@ -62,7 +69,12 @@ class WidgetFlipWidget : AppWidgetProvider() {
         intent.action = action
 
         // return the pending intent
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+        return PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
     }
 
 
@@ -81,10 +93,9 @@ class WidgetFlipWidget : AppWidgetProvider() {
         views.setTextViewText(R.id.appwidget_text, widgetText)
 
         // launch a pending intent to increase the value saved in shared preferences
-        views.setOnClickPendingIntent(R.id.button, pendingIntent(context, "increase"))
+        views.setOnClickPendingIntent(R.id.button, pendingIntent(context, ACTION_INCREASE))
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 }
-
