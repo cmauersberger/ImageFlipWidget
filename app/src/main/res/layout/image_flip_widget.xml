@@ -5,12 +5,21 @@
     android:theme="@style/Theme.ImageFlipWidget.AppWidgetContainer">
 
     <ImageView
-        android:id="@+id/background_image"
+        android:id="@+id/background_image_cropped"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="true"
         android:contentDescription="@null"
         android:scaleType="centerCrop"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/background_image_fit"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:contentDescription="@null"
+        android:scaleType="fitCenter"
         android:visibility="gone" />
 
     <TextView

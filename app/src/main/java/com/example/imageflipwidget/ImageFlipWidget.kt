@@ -19,6 +19,11 @@ import org.json.JSONArray
  * PROPOSED NAME BY CODEX: ImageFlipWidget OLD NAME: WidgetFlipWidget
  */
 class ImageFlipWidget : AppWidgetProvider() {
+    enum class CropMode {
+        STRETCH_CROPPED,
+        MAX_FIT
+    }
+
     companion object {
         const val ACTION_NEXT_IMAGE = "com.example.imageflipwidget.action.NEXT_IMAGE"
 
@@ -26,9 +31,34 @@ class ImageFlipWidget : AppWidgetProvider() {
 
         private const val PREF_IMAGE_URIS_PREFIX = "widgetImageUris_"
         private const val PREF_IMAGE_INDEX_PREFIX = "widgetImageIndex_"
+        private const val PREF_CROP_MODE_PREFIX = "widgetCropMode_"
 
         private fun imageUrisKey(appWidgetId: Int) = "$PREF_IMAGE_URIS_PREFIX$appWidgetId"
         private fun imageIndexKey(appWidgetId: Int) = "$PREF_IMAGE_INDEX_PREFIX$appWidgetId"
+        private fun cropModeKey(appWidgetId: Int) = "$PREF_CROP_MODE_PREFIX$appWidgetId"
+
+        private fun loadCropMode(prefs: android.content.SharedPreferences, appWidgetId: Int): CropMode {
+            if (appWidgetId == -1) return CropMode.STRETCH_CROPPED
+            return when (prefs.getString(cropModeKey(appWidgetId), null)) {
+                "max_fit" -> CropMode.MAX_FIT
+                else -> CropMode.STRETCH_CROPPED
+            }
+        }
+
+        fun saveCropMode(context: Context, appWidgetId: Int, cropMode: CropMode) {
+            if (appWidgetId == -1) return
+            val prefs = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
+            val value = when (cropMode) {
+                CropMode.STRETCH_CROPPED -> "stretch_cropped"
+                CropMode.MAX_FIT -> "max_fit"
+            }
+            prefs.edit().putString(cropModeKey(appWidgetId), value).apply()
+        }
+
+        fun getCropMode(context: Context, appWidgetId: Int): CropMode {
+            val prefs = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
+            return loadCropMode(prefs, appWidgetId)
+        }
 
         fun updateAllWidgets(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
@@ -143,6 +173,7 @@ class ImageFlipWidget : AppWidgetProvider() {
             val imageUris = loadImageUris(prefs, appWidgetId)
             val imageIndex = loadImageIndex(prefs, appWidgetId)
             val selectedImageUri = imageUris.getOrNull(imageIndex.coerceAtLeast(0))
+            val cropMode = loadCropMode(prefs, appWidgetId)
 
             val views = RemoteViews(context.packageName, R.layout.image_flip_widget)
             views.setViewVisibility(
@@ -161,17 +192,26 @@ class ImageFlipWidget : AppWidgetProvider() {
                 }.getOrNull()
 
                 if (bitmap != null) {
-                    views.setViewVisibility(R.id.background_image, android.view.View.VISIBLE)
-                    views.setImageViewBitmap(R.id.background_image, bitmap)
-                    views.setOnClickPendingIntent(
-                        R.id.background_image,
-                        nextImagePendingIntent(context, appWidgetId)
-                    )
+                    val cropped = cropMode == CropMode.STRETCH_CROPPED
+                    val croppedViewId = R.id.background_image_cropped
+                    val fitViewId = R.id.background_image_fit
+                    val imageViewId = if (cropped) croppedViewId else fitViewId
+                    val otherViewId = if (cropped) fitViewId else croppedViewId
+
+                    views.setViewVisibility(imageViewId, View.VISIBLE)
+                    views.setViewVisibility(otherViewId, View.GONE)
+                    views.setImageViewBitmap(imageViewId, bitmap)
+
+                    val nextIntent = nextImagePendingIntent(context, appWidgetId)
+                    views.setOnClickPendingIntent(croppedViewId, nextIntent)
+                    views.setOnClickPendingIntent(fitViewId, nextIntent)
                 } else {
-                    views.setViewVisibility(R.id.background_image, android.view.View.GONE)
+                    views.setViewVisibility(R.id.background_image_cropped, View.GONE)
+                    views.setViewVisibility(R.id.background_image_fit, View.GONE)
                 }
             } else {
-                views.setViewVisibility(R.id.background_image, android.view.View.GONE)
+                views.setViewVisibility(R.id.background_image_cropped, View.GONE)
+                views.setViewVisibility(R.id.background_image_fit, View.GONE)
             }
 
             views.setOnClickPendingIntent(R.id.settings_button, imagePickerPendingIntent(context, appWidgetId))

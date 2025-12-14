@@ -25,5 +25,24 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="@string/select_images" />
-</LinearLayout>
 
+    <RadioGroup
+        android:id="@+id/crop_mode_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/crop_mode_stretch_cropped"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/crop_mode_stretch_cropped" />
+
+        <RadioButton
+            android:id="@+id/crop_mode_max_fit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/crop_mode_max_fit" />
+    </RadioGroup>
+</LinearLayout>
