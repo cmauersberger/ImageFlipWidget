@@ -32,10 +32,12 @@ class ImageFlipWidget : AppWidgetProvider() {
         private const val PREF_IMAGE_URIS_PREFIX = "widgetImageUris_"
         private const val PREF_IMAGE_INDEX_PREFIX = "widgetImageIndex_"
         private const val PREF_CROP_MODE_PREFIX = "widgetCropMode_"
+        private const val PREF_NO_MARGIN_PREFIX = "widgetNoMargin_"
 
         private fun imageUrisKey(appWidgetId: Int) = "$PREF_IMAGE_URIS_PREFIX$appWidgetId"
         private fun imageIndexKey(appWidgetId: Int) = "$PREF_IMAGE_INDEX_PREFIX$appWidgetId"
         private fun cropModeKey(appWidgetId: Int) = "$PREF_CROP_MODE_PREFIX$appWidgetId"
+        private fun noMarginKey(appWidgetId: Int) = "$PREF_NO_MARGIN_PREFIX$appWidgetId"
 
         private fun loadCropMode(prefs: android.content.SharedPreferences, appWidgetId: Int): CropMode {
             if (appWidgetId == -1) return CropMode.STRETCH_CROPPED
@@ -58,6 +60,18 @@ class ImageFlipWidget : AppWidgetProvider() {
         fun getCropMode(context: Context, appWidgetId: Int): CropMode {
             val prefs = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
             return loadCropMode(prefs, appWidgetId)
+        }
+
+        fun getDisplayImageWithoutMargin(context: Context, appWidgetId: Int): Boolean {
+            if (appWidgetId == -1) return false
+            val prefs = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
+            return prefs.getBoolean(noMarginKey(appWidgetId), false)
+        }
+
+        fun saveDisplayImageWithoutMargin(context: Context, appWidgetId: Int, enabled: Boolean) {
+            if (appWidgetId == -1) return
+            val prefs = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
+            prefs.edit().putBoolean(noMarginKey(appWidgetId), enabled).apply()
         }
 
         fun updateAllWidgets(context: Context) {
@@ -174,11 +188,29 @@ class ImageFlipWidget : AppWidgetProvider() {
             val imageIndex = loadImageIndex(prefs, appWidgetId)
             val selectedImageUri = imageUris.getOrNull(imageIndex.coerceAtLeast(0))
             val cropMode = loadCropMode(prefs, appWidgetId)
+            val noMargin = getDisplayImageWithoutMargin(context, appWidgetId)
 
             val views = RemoteViews(context.packageName, R.layout.image_flip_widget)
             views.setViewVisibility(
                 R.id.appwidget_header_label,
                 if (context.resources.getBoolean(R.bool.show_debug_label)) View.VISIBLE else View.GONE
+            )
+
+            val paddingDp = if (noMargin) 0f else 16f
+            val paddingPx = (paddingDp * context.resources.displayMetrics.density).roundToInt()
+            views.setViewPadding(
+                R.id.background_image_cropped,
+                paddingPx,
+                paddingPx,
+                paddingPx,
+                paddingPx
+            )
+            views.setViewPadding(
+                R.id.background_image_fit,
+                paddingPx,
+                paddingPx,
+                paddingPx,
+                paddingPx
             )
 
             if (!selectedImageUri.isNullOrBlank()) {

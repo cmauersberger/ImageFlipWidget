@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 class SettingsActivity : AppCompatActivity() {
     private var appWidgetId: Int = AppWidgetManager.INVALID_APPWIDGET_ID
     private var initializedCropMode = false
+    private var initializedNoMargin = false
     private val pickImagesLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -49,6 +51,14 @@ class SettingsActivity : AppCompatActivity() {
                 ImageFlipWidget.updateSingleWidget(this, appWidgetId)
             }
         }
+
+        findViewById<CheckBox>(R.id.display_image_without_margin).setOnCheckedChangeListener { _, isChecked ->
+            if (!initializedNoMargin) return@setOnCheckedChangeListener
+            ImageFlipWidget.saveDisplayImageWithoutMargin(this, appWidgetId, isChecked)
+            if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                ImageFlipWidget.updateSingleWidget(this, appWidgetId)
+            }
+        }
     }
 
     override fun onResume() {
@@ -65,5 +75,10 @@ class SettingsActivity : AppCompatActivity() {
         }
         findViewById<RadioGroup>(R.id.crop_mode_group).check(checkedId)
         initializedCropMode = true
+
+        initializedNoMargin = false
+        val noMargin = ImageFlipWidget.getDisplayImageWithoutMargin(this, appWidgetId)
+        findViewById<CheckBox>(R.id.display_image_without_margin).isChecked = noMargin
+        initializedNoMargin = true
     }
 }

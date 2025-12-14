@@ -22,27 +22,32 @@
         android:scaleType="fitCenter"
         android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/appwidget_header_label"
-        style="@style/Widget.ImageFlipWidget.AppWidget.InnerView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:background="@android:color/transparent"
-        android:text="v2.8"
-        android:textSize="12sp"
-        android:textStyle="bold|italic" />
+    <RelativeLayout
+        android:id="@+id/overlay_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
-    <ImageButton
-        android:id="@+id/settings_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/settings"
-        android:padding="2dp"
-        android:src="@drawable/ic_settings_24" />
+        <TextView
+            android:id="@+id/appwidget_header_label"
+            style="@style/Widget.ImageFlipWidget.AppWidget.InnerView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@android:color/transparent"
+            android:text="v2.8"
+            android:textSize="12sp"
+            android:textStyle="bold|italic" />
+
+        <ImageButton
+            android:id="@+id/settings_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/settings"
+            android:padding="2dp"
+            android:src="@drawable/ic_settings_24" />
+    </RelativeLayout>
 </RelativeLayout>

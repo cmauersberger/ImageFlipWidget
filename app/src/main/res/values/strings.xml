@@ -7,4 +7,5 @@
     <string name="select_images">Select images</string>
     <string name="crop_mode_stretch_cropped">Strech &amp; cropped</string>
     <string name="crop_mode_max_fit">Max fit</string>
+    <string name="display_image_without_margin">Display image without margin</string>
 </resources>

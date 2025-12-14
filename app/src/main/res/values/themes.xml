@@ -26,7 +26,7 @@
 
     <style name="Theme.ImageFlipWidget.AppWidgetContainer" parent="Theme.ImageFlipWidget.AppWidgetContainerParent">
         <!-- Apply padding to avoid the content of the widget colliding with the rounded corners -->
-        <item name="appWidgetPadding">16dp</item>
+        <item name="appWidgetPadding">0dp</item>
     </style>
 
     <style name="Theme.ImageFlipWidget.SettingsDialog" parent="Theme.MaterialComponents.DayNight.Dialog">

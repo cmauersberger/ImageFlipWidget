@@ -45,4 +45,11 @@
             android:layout_height="wrap_content"
             android:text="@string/crop_mode_max_fit" />
     </RadioGroup>
+
+    <CheckBox
+        android:id="@+id/display_image_without_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/display_image_without_margin" />
 </LinearLayout>
