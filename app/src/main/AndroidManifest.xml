@@ -6,6 +6,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.ImageFlipWidget">
+
+        <activity
+            android:name=".ImagePickerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ImageFlipWidget" />
+
         <receiver
             android:name=".ImageFlipWidget"
             android:exported="false">
