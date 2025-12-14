@@ -14,36 +14,15 @@
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/appwidget_text"
-        style="@style/Widget.ImageFlipWidget.AppWidget.InnerView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="false"
-        android:layout_margin="8dp"
-        android:background="@android:color/transparent"
-        android:text="@string/count_0"
-        android:textSize="12sp"
-        android:textStyle="bold|italic" />
-    <TextView
         android:id="@+id/appwidget_header_label"
         style="@style/Widget.ImageFlipWidget.AppWidget.InnerView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/appwidget_text"
-        android:layout_marginTop="2dp"
+        android:layout_centerInParent="true"
         android:background="@android:color/transparent"
         android:text="v2.7"
         android:textSize="12sp"
         android:textStyle="bold|italic" />
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:text="@string/click_me"/>
 
     <ImageButton
         android:id="@+id/settings_button"

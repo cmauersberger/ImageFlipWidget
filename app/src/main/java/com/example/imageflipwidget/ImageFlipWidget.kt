@@ -19,10 +19,8 @@ import org.json.JSONArray
  */
 class ImageFlipWidget : AppWidgetProvider() {
     companion object {
-        const val ACTION_INCREASE = "com.example.imageflipwidget.action.INCREASE"
         const val ACTION_NEXT_IMAGE = "com.example.imageflipwidget.action.NEXT_IMAGE"
 
-        private const val PREF_WIDGET_TEXT = "widgetText"
         private const val PREF_FIRST_IMAGE_URI_LEGACY = "widgetFirstImageUri"
 
         private const val PREF_IMAGE_URIS_PREFIX = "widgetImageUris_"
@@ -40,16 +38,6 @@ class ImageFlipWidget : AppWidgetProvider() {
         fun updateSingleWidget(context: Context, appWidgetId: Int) {
             val manager = AppWidgetManager.getInstance(context)
             updateAppWidget(context, manager, appWidgetId)
-        }
-
-        private fun increasePendingIntent(context: Context): PendingIntent {
-            val intent = Intent(context, ImageFlipWidget::class.java).apply { action = ACTION_INCREASE }
-            return PendingIntent.getBroadcast(
-                context,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
         }
 
         private fun imagePickerPendingIntent(context: Context, appWidgetId: Int): PendingIntent {
@@ -146,14 +134,11 @@ class ImageFlipWidget : AppWidgetProvider() {
         ) {
             val prefs = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
 
-            val widgetText = prefs.getString(PREF_WIDGET_TEXT, "0")
-
             val imageUris = loadImageUris(prefs, appWidgetId)
             val imageIndex = loadImageIndex(prefs, appWidgetId)
             val selectedImageUri = imageUris.getOrNull(imageIndex.coerceAtLeast(0))
 
             val views = RemoteViews(context.packageName, R.layout.image_flip_widget)
-            views.setTextViewText(R.id.appwidget_text, widgetText)
 
             if (!selectedImageUri.isNullOrBlank()) {
                 val bitmap = runCatching {
@@ -179,7 +164,6 @@ class ImageFlipWidget : AppWidgetProvider() {
                 views.setViewVisibility(R.id.background_image, android.view.View.GONE)
             }
 
-            views.setOnClickPendingIntent(R.id.button, increasePendingIntent(context))
             views.setOnClickPendingIntent(R.id.settings_button, imagePickerPendingIntent(context, appWidgetId))
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
@@ -256,18 +240,6 @@ class ImageFlipWidget : AppWidgetProvider() {
 
         // this is where we receive an intent broadcast
         val action = intent?.action ?: return
-
-        if (context != null && action == ACTION_INCREASE) {
-            // update preferences values
-            val prefs = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
-            prefs.edit().putString(
-                PREF_WIDGET_TEXT,
-                ((prefs.getString(PREF_WIDGET_TEXT, "0") ?: "0").toInt() + 1).toString()
-            ).apply()
-
-            updateAllWidgets(context)
-            return
-        }
 
         if (context != null && action == ACTION_NEXT_IMAGE) {
             val appWidgetId =
