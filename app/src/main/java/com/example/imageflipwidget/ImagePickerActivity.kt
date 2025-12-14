@@ -54,7 +54,13 @@ class ImagePickerActivity : AppCompatActivity() {
         val takeFlags =
             data.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         pickedUris.forEach { uri ->
-            runCatching { contentResolver.takePersistableUriPermission(uri, takeFlags) }
+            runCatching {
+                if (takeFlags != 0) {
+                    contentResolver.takePersistableUriPermission(uri, takeFlags)
+                } else {
+                    contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+            }
         }
 
         val prefs = getSharedPreferences(packageName, MODE_PRIVATE)

@@ -6,8 +6,11 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.widget.RemoteViews
+import kotlin.math.roundToInt
 
 /**
  * Implementation of App Widget functionality.
@@ -62,8 +65,21 @@ class ImageFlipWidget : AppWidgetProvider() {
             views.setTextViewText(R.id.appwidget_text, widgetText)
 
             if (!imageUriString.isNullOrBlank()) {
-                views.setViewVisibility(R.id.background_image, android.view.View.VISIBLE)
-                views.setImageViewUri(R.id.background_image, Uri.parse(imageUriString))
+                val bitmap = runCatching {
+                    loadScaledBitmapForWidget(
+                        context = context,
+                        appWidgetManager = appWidgetManager,
+                        appWidgetId = appWidgetId,
+                        uri = Uri.parse(imageUriString)
+                    )
+                }.getOrNull()
+
+                if (bitmap != null) {
+                    views.setViewVisibility(R.id.background_image, android.view.View.VISIBLE)
+                    views.setImageViewBitmap(R.id.background_image, bitmap)
+                } else {
+                    views.setViewVisibility(R.id.background_image, android.view.View.GONE)
+                }
             } else {
                 views.setViewVisibility(R.id.background_image, android.view.View.GONE)
             }
@@ -72,6 +88,60 @@ class ImageFlipWidget : AppWidgetProvider() {
             views.setOnClickPendingIntent(R.id.settings_button, imagePickerPendingIntent(context))
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
+        }
+
+        private fun loadScaledBitmapForWidget(
+            context: Context,
+            appWidgetManager: AppWidgetManager,
+            appWidgetId: Int,
+            uri: Uri
+        ): Bitmap? {
+            val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
+            val density = context.resources.displayMetrics.density
+
+            val minWidthPx =
+                (options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH).toFloat() * density)
+                    .roundToInt()
+                    .coerceAtLeast(1)
+            val minHeightPx =
+                (options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT).toFloat() * density)
+                    .roundToInt()
+                    .coerceAtLeast(1)
+
+            val maxSidePx = maxOf(minWidthPx, minHeightPx)
+            val capPx = maxSidePx.coerceIn(128, 512)
+
+            val resolver = context.contentResolver
+
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
+
+            if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+
+            var sampleSize = 1
+            while (bounds.outWidth / sampleSize > capPx * 2 || bounds.outHeight / sampleSize > capPx * 2) {
+                sampleSize *= 2
+            }
+
+            val decodeOptions = BitmapFactory.Options().apply {
+                inSampleSize = sampleSize
+                inPreferredConfig = Bitmap.Config.RGB_565
+            }
+
+            val decoded =
+                resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, decodeOptions) }
+                    ?: return null
+
+            val decodedMaxSide = maxOf(decoded.width, decoded.height)
+            if (decodedMaxSide <= capPx) return decoded
+
+            val scale = capPx.toFloat() / decodedMaxSide.toFloat()
+            val scaledWidth = (decoded.width * scale).roundToInt().coerceAtLeast(1)
+            val scaledHeight = (decoded.height * scale).roundToInt().coerceAtLeast(1)
+
+            val scaled = Bitmap.createScaledBitmap(decoded, scaledWidth, scaledHeight, true)
+            if (scaled != decoded) decoded.recycle()
+            return scaled
         }
     }
 

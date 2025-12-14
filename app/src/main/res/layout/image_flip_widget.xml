@@ -33,7 +33,7 @@
         android:layout_below="@id/appwidget_text"
         android:layout_marginTop="2dp"
         android:background="@android:color/transparent"
-        android:text="v2.5"
+        android:text="v2.6"
         android:textSize="12sp"
         android:textStyle="bold|italic" />
     <Button
