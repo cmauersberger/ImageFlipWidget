@@ -1,4 +1,4 @@
-package com.example.widgetflip
+package com.example.imageflipwidget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -77,7 +77,7 @@ class WidgetFlipWidget : AppWidgetProvider() {
         val widgetText = prefs.getString("widgetText", "0")
         // OLD: val widgetText = context.getString(R.string.appwidget_text)
         // Construct the RemoteViews object
-        val views = RemoteViews(context.packageName, R.layout.widget_flip_widget)
+        val views = RemoteViews(context.packageName, R.layout.image_flip_widget)
         views.setTextViewText(R.id.appwidget_text, widgetText)
 
         // launch a pending intent to increase the value saved in shared preferences

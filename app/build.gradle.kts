@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.widgetflip"
+    namespace = "com.example.imageflipwidget"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.widgetflip"
+        applicationId = "com.example.imageflipwidget"
         minSdk = 31
         targetSdk = 36
         versionCode = 1

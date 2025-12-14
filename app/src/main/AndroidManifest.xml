@@ -3,11 +3,11 @@
 
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="WidgetFlip2"
+        android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/Theme.WidgetFlip">
+        android:theme="@style/Theme.ImageFlipWidget">
         <receiver
-            android:name=".WidgetFlipWidget"
+            android:name=".ImageFlipWidget"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -15,7 +15,7 @@
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/widget_flip_widget_info" />
+                android:resource="@xml/image_flip_widget_info" />
         </receiver>
     </application>
 

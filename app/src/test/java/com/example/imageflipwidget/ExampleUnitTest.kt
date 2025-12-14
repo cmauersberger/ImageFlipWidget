@@ -1,4 +1,4 @@
-package com.example.widgetflip
+package com.example.imageflipwidget
 
 import org.junit.Test
 

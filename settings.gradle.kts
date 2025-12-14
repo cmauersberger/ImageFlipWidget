@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "WidgetFlip"
+rootProject.name = "ImageFlipWidget"
 include(":app")
  
