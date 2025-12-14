@@ -1,0 +1,3 @@
+<resources>
+    <bool name="show_debug_label">true</bool>
+</resources>

@@ -9,6 +9,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.view.View
 import android.widget.RemoteViews
 import kotlin.math.roundToInt
 import org.json.JSONArray
@@ -139,6 +140,10 @@ class ImageFlipWidget : AppWidgetProvider() {
             val selectedImageUri = imageUris.getOrNull(imageIndex.coerceAtLeast(0))
 
             val views = RemoteViews(context.packageName, R.layout.image_flip_widget)
+            views.setViewVisibility(
+                R.id.appwidget_header_label,
+                if (context.resources.getBoolean(R.bool.show_debug_label)) View.VISIBLE else View.GONE
+            )
 
             if (!selectedImageUri.isNullOrBlank()) {
                 val bitmap = runCatching {
